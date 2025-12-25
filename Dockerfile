@@ -1,6 +1,6 @@
 FROM php:8.2-apache
 
-# Cài các extension cần cho Laravel + Filemanager
+# Cài extension cần thiết
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
@@ -20,9 +20,13 @@ RUN apt-get update && apt-get install -y \
 RUN a2enmod rewrite
 
 WORKDIR /var/www/html
+
+# Copy source code
 COPY . .
 
-# Phân quyền
-RUN chown -R www-data:www-data storage bootstrap/cache
+# Tạo thư mục nếu chưa tồn tại + phân quyền
+RUN mkdir -p storage bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
 EXPOSE 80
