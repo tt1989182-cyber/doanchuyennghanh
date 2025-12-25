@@ -1,6 +1,6 @@
-FROM php:8.2-apache
+FROM php:8.2-cli
 
-# Cài system libs + PHP extensions
+# Cài extension cần thiết
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
@@ -16,23 +16,20 @@ RUN apt-get update && apt-get install -y \
     bcmath \
     gd
 
-# Enable apache rewrite
-RUN a2enmod rewrite
-
 WORKDIR /var/www/html
 
-# Copy source code
+# Copy code
 COPY . .
 
-# CÀI COMPOSER
+# Cài composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# CÀI DEPENDENCIES (QUAN TRỌNG NHẤT)
+# Cài vendor
 RUN composer install --no-dev --optimize-autoloader
 
-# Tạo thư mục & phân quyền
+# Tạo thư mục & quyền
 RUN mkdir -p storage bootstrap/cache \
-    && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
-EXPOSE 80
+# 🚀 LẮNG NGHE ĐÚNG PORT RAILWAY
+CMD php artisan serve --host=0.0.0.0 --port=${PORT}
