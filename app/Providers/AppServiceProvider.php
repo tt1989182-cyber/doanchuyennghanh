@@ -4,6 +4,13 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
+
+public function boot()
+{
+    URL::forceScheme('https');
+}
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
