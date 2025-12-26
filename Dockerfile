@@ -20,4 +20,11 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
 
 RUN composer install --no-dev --optimize-autoloader
 
+# 🔥 FIX SESSION + CACHE
+RUN mkdir -p storage/framework/sessions \
+    storage/framework/views \
+    storage/framework/cache \
+    bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
+
 CMD php -S 0.0.0.0:$PORT -t public
