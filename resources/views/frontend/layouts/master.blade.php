@@ -33,7 +33,24 @@
 
     @include('frontend.layouts.footer')
 
-    @stack('scripts')
+    <!-- ===== JS BẮT BUỘC ===== -->
+    <script src="{{ asset('frontend/js/jquery.min.js') }}"></script>
+    <script src="{{ asset('frontend/js/jquery-migrate-3.0.0.js') }}"></script>
+    <script src="{{ asset('frontend/js/popper.min.js') }}"></script>
+    <script src="{{ asset('frontend/js/bootstrap.min.js') }}"></script>
 
+    <script src="{{ asset('frontend/js/owl-carousel.js') }}"></script>
+    <script src="{{ asset('frontend/js/slicknav.min.js') }}"></script>
+    <script src="{{ asset('frontend/js/jquery.fancybox.min.js') }}"></script>
+    <script src="{{ asset('frontend/js/magnific-popup.js') }}"></script>
+    <script src="{{ asset('frontend/js/jquery-ui.min.js') }}"></script>
+    <script src="{{ asset('frontend/js/nicesellect.js') }}"></script>
+    <script src="{{ asset('frontend/js/flex-slider.js') }}"></script>
+    <script src="{{ asset('frontend/js/waypoints.min.js') }}"></script>
+    <script src="{{ asset('frontend/js/isotope.pkgd.min.js') }}"></script>
+    <script src="{{ asset('frontend/js/wow.min.js') }}"></script>
+    <script src="{{ asset('frontend/js/active.js') }}"></script>
+
+    @stack('scripts')
 </body>
 </html>
