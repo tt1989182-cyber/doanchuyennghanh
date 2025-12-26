@@ -4,9 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Fonts -->
@@ -14,15 +12,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
 
-    <!-- Styles -->
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <!-- ✅ BOOTSTRAP 4 CSS (BẮT BUỘC) -->
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
-    <!-- ===== FIX MENU MOBILE (DÁN LÀ CHẠY) ===== -->
+    <!-- FIX ICON ☰ -->
     <style>
         .navbar-toggler {
             border: 1px solid #333;
         }
-
         .navbar-toggler-icon {
             width: 30px;
             height: 30px;
@@ -32,80 +30,73 @@
 </head>
 
 <body>
-<div id="app">
 
-    <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
-        <div class="container">
+<nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
+    <div class="container">
 
-            <a class="navbar-brand" href="{{ url('/') }}">
-                {{ config('app.name', 'Laravel') }}
-            </a>
+        <a class="navbar-brand" href="{{ url('/') }}">
+            {{ config('app.name', 'Laravel') }}
+        </a>
 
-            <!-- NÚT ☰ MOBILE -->
-            <button class="navbar-toggler" type="button"
-                    data-toggle="collapse"
-                    data-target="#navbarSupportedContent"
-                    aria-controls="navbarSupportedContent"
-                    aria-expanded="false"
-                    aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+        <!-- ☰ MOBILE -->
+        <button class="navbar-toggler" type="button"
+                data-toggle="collapse"
+                data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-            <!-- MENU -->
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <!-- MENU -->
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
-                <!-- LEFT -->
-                <ul class="navbar-nav mr-auto">
-                    <!-- thêm menu nếu cần -->
-                </ul>
+            <ul class="navbar-nav ml-auto">
+                @guest
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('login') }}">Login</a>
+                    </li>
 
-                <!-- RIGHT -->
-                <ul class="navbar-nav ml-auto">
-                    @guest
+                    @if (Route::has('register'))
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('login') }}">Login</a>
+                            <a class="nav-link" href="{{ route('register') }}">Register</a>
                         </li>
+                    @endif
+                @else
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#"
+                           data-toggle="dropdown">
+                            {{ Auth::user()->name }}
+                        </a>
 
-                        @if (Route::has('register'))
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('register') }}">Register</a>
-                            </li>
-                        @endif
-                    @else
-                        <li class="nav-item dropdown">
-                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#"
-                               role="button" data-toggle="dropdown">
-                                {{ Auth::user()->name }}
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="{{ route('logout') }}"
+                               onclick="event.preventDefault();
+                               document.getElementById('logout-form').submit();">
+                                Logout
                             </a>
 
-                            <div class="dropdown-menu dropdown-menu-right">
-                                <a class="dropdown-item" href="{{ route('logout') }}"
-                                   onclick="event.preventDefault();
-                                   document.getElementById('logout-form').submit();">
-                                    Logout
-                                </a>
+                            <form id="logout-form" action="{{ route('logout') }}"
+                                  method="POST" style="display:none;">
+                                @csrf
+                            </form>
+                        </div>
+                    </li>
+                @endguest
+            </ul>
 
-                                <form id="logout-form" action="{{ route('logout') }}"
-                                      method="POST" style="display:none;">
-                                    @csrf
-                                </form>
-                            </div>
-                        </li>
-                    @endguest
-                </ul>
-
-            </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <main class="py-4">
-        @yield('content')
-    </main>
+<main class="py-4">
+    @yield('content')
+</main>
 
-</div>
-
-<!-- Scripts (Laravel mặc định – KHÔNG XÓA) -->
-<script src="{{ asset('js/app.js') }}" defer></script>
+<!-- ✅ BOOTSTRAP 4 JS (BẮT BUỘC – KHÔNG DEFER) -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 </body>
 </html>
