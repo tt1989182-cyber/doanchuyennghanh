@@ -1,231 +1,166 @@
+@php
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Category;
+use App\Models\Cart;
+use App\Models\Wishlist;
+
+/* SETTINGS */
+$settings = DB::table('settings')->first();
+
+/* CATEGORY */
+$categories = Category::with('child_cat')
+    ->whereNull('parent_id')
+    ->where('status','active')
+    ->get();
+
+/* COUNT */
+$cartCount = 0;
+$wishlistCount = 0;
+
+if(Auth::check()){
+    $cartCount = Cart::where('user_id',Auth::id())
+        ->whereNull('order_id')
+        ->sum('quantity');
+
+    $wishlistCount = Wishlist::where('user_id',Auth::id())
+        ->sum('quantity');
+}
+@endphp
+
 <header class="header shop">
-    <!-- Topbar -->
+
+    {{-- TOP BAR --}}
     <div class="topbar">
         <div class="container">
             <div class="row">
-                <div class="col-lg-6 col-md-12 col-12">
-                    <!-- Top Left -->
-                    <div class="top-left">
-                        <ul class="list-main">
-                            @php
-                            $settings=DB::table('settings')->get();
-
-                            @endphp
-                            <li><i class="ti-headphone-alt"></i>@foreach($settings as $data) {{$data->phone}} @endforeach</li>
-                            <li><i class="ti-email"></i> @foreach($settings as $data) {{$data->email}} @endforeach</li>
-                        </ul>
-                    </div>
-                    <!--/ End Top Left -->
+                <div class="col-lg-6 col-12">
+                    <ul class="list-main">
+                        <li><i class="ti-headphone-alt"></i> {{ $settings->phone ?? '' }}</li>
+                        <li><i class="ti-email"></i> {{ $settings->email ?? '' }}</li>
+                    </ul>
                 </div>
-                <div class="col-lg-6 col-md-12 col-12">
-                    <!-- Top Right -->
-                    <div class="right-content">
-                        <ul class="list-main">
-                            <li><i class="ti-location-pin"></i> 
-    <a href="{{ route('order.track') }}">Theo dõi đơn hàng</a>
-</li>
 
-@auth
-    <li><i class="ti-user"></i>
-        <a href="{{ route('user.account') }}">Hồ sơ của tôi</a>
-    </li>
+                <div class="col-lg-6 col-12 text-right">
+                    <ul class="list-main">
+                        <li>
+                            <i class="ti-location-pin"></i>
+                            <a href="{{ route('order.track') }}">Theo dõi đơn hàng</a>
+                        </li>
 
-    @if(Auth::user()->role=='admin')
-        <li><i class="ti-user"></i>
-            <a href="{{route('admin')}}" target="_blank">Bảng theo dõi</a>
-        </li>
-    @endif
+                        @auth
+                            <li>
+                                <i class="ti-user"></i>
+                                <a href="{{ route('user.account') }}">Tài khoản</a>
+                            </li>
 
-    <li><i class="ti-power-off"></i>
-        <a href="{{route('user.logout')}}">Đăng xuất</a>
-    </li>
-@endauth
+                            @if(Auth::user()->role === 'admin')
+                                <li>
+                                    <a href="{{ route('admin') }}" target="_blank">Admin</a>
+                                </li>
+                            @endif
 
-@guest
-    <li><i class="ti-power-off"></i>
-        <a href="{{route('login.form')}}">Đăng nhập /</a>
-        <a href="{{route('register.form')}}">Đăng kí</a>
-    </li>
-@endguest
+                            <li>
+                                <a href="{{ route('user.logout') }}">Đăng xuất</a>
+                            </li>
+                        @endauth
 
-                        </ul>
-                    </div>
-                    <!-- End Top Right -->
+                        @guest
+                            <li>
+                                <a href="{{ route('login.form') }}">Đăng nhập</a> /
+                                <a href="{{ route('register.form') }}">Đăng ký</a>
+                            </li>
+                        @endguest
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
-    <!-- End Topbar -->
+
+    {{-- MIDDLE --}}
     <div class="middle-inner">
         <div class="container">
-            <div class="row">
+            <div class="row align-items-center">
+
                 <div class="col-lg-2 col-md-2 col-12">
-                    <!-- Logo -->
-                    <div class="logo">
-                        @php
-                        $settings=DB::table('settings')->get();
-                        @endphp
-                        <a href="{{route('home')}}"><img src="{{ asset('backend/img/logo2.jpg') }}" alt="logo">
-                        </a>
-                    </div>
-                    <!--/ End Logo -->
-                    <!-- Search Form -->
-                    <div class="search-top">
-                        <div class="top-search"><a href="#0"><i class="ti-search"></i></a></div>
-                        <!-- Search Form -->
-                        <div class="search-top">
-                            <form class="search-form">
-                                <input type="text" placeholder="Tìm kiếm ở đây..." name="search">
-                                <button value="search" type="submit"><i class="ti-search"></i></button>
-                            </form>
-                        </div>
-                        <!--/ End Search Form -->
-                    </div>
-                    <!--/ End Search Form -->
-                    <div class="mobile-nav"></div>
+                    <a href="{{ route('home') }}">
+                        <img src="{{ asset('backend/img/logo2.jpg') }}" alt="logo">
+                    </a>
                 </div>
+
                 <div class="col-lg-8 col-md-7 col-12">
-                    <div class="search-bar-top">
-                        <div class="search-bar">
-                            <select>
-                                <option>Tất cả danh mục</option>
-                                @foreach(Helper::getAllCategory() as $cat)
-                                <option>{{$cat->title}}</option>
-                                @endforeach
-                            </select>
-                            <form method="POST" action="{{route('product.search')}}">
-                                @csrf
-                                <input name="search" placeholder="Tìm kiếm ở đây" type="search">
-                                <button class="btnn" type="submit"><i class="ti-search"></i></button>
-                            </form>
-                        </div>
-                    </div>
+                    <form action="{{ route('product.search') }}" method="POST" class="search-bar">
+                        @csrf
+                        <input type="search" name="search" placeholder="Tìm kiếm sản phẩm...">
+                        <button type="submit">
+                            <i class="ti-search"></i>
+                        </button>
+                    </form>
                 </div>
-                <div class="col-lg-2 col-md-3 col-12">
-                    <div class="right-bar">
-                        <!-- Search Form -->
-                        <div class="sinlge-bar shopping">
-                            @php
-                            $total_prod=0;
-                            $total_amount=0;
-                            @endphp
-                            @if(session('wishlist'))
-                            @foreach(session('wishlist') as $wishlist_items)
-                            @php
-                            $total_prod+=$wishlist_items['quantity'];
-                            $total_amount+=$wishlist_items['amount'];
-                            @endphp
-                            @endforeach
-                            @endif
-                            <a href="{{route('wishlist')}}" class="single-icon"><i class="ti-heart"></i>
- <span class="total-count">{{Helper::wishlistCount()}}</span></a>
-                            <!-- Shopping Item -->
-                            @auth
-                            <div class="shopping-item">
-                                <div class="dropdown-cart-header">
-                                    <span>{{count(Helper::getAllProductFromWishlist())}} Items</span>
-                                    <a href="{{route('wishlist')}}">Danh sách yêu thích</a>
-                                </div>
-                                <ul class="shopping-list">
-                                    {{-- {{Helper::getAllProductFromCart()}} --}}
-                                    @foreach(Helper::getAllProductFromWishlist() as $data)
-                                    @php
-                                    $photo=explode(',',$data->product['photo']);
-                                    @endphp
-                                    <li>
-                                        <a href="{{route('wishlist-delete',$data->id)}}" class="remove" title="Remove this item"><i class="fa fa-remove"></i></a>
-                                        <a class="cart-img" href="#"><img src="{{$photo[0]}}" alt="{{$photo[0]}}"></a>
-                                        <h4><a href="{{route('product-detail',$data->product['slug'])}}" target="_blank">{{$data->product['title']}}</a></h4>
-                                        <p class="quantity">{{$data->quantity}} x - <span class="amount">{{ number_format($data->price, 0, ',', '.') }} ₫</span></p>
-                                    </li>
-                                    @endforeach
-                                </ul>
-                                <div class="bottom">
-                                    <div class="total">
-                                        <span>Tổng</span>
-                                        <span class="total-amount">{{ number_format(Helper::totalWishlistPrice(), 0, ',', '.') }} ₫</span>
-                                    </div>
-                                    <a href="{{route('cart')}}" class="btn animate">Thanh toán</a>
-                                </div>
-                            </div>
-                            @endauth
-                            <!--/ End Shopping Item -->
-                        </div>
-                        {{-- <div class="sinlge-bar">
-                            <a href="{{route('wishlist')}}" class="single-icon"><i class="fa fa-heart-o" aria-hidden="true"></i></a>
-                    </div> --}}
-                    <div class="sinlge-bar shopping">
-                        <a href="{{route('cart')}}" class="single-icon"><i class="ti-bag"></i> <span class="total-count">{{Helper::cartCount()}}</span></a>
-                        <!-- Shopping Item -->
-                        @auth
-                        <div class="shopping-item">
-                            <div class="dropdown-cart-header">
-                                <span>{{count(Helper::getAllProductFromCart())}} Items</span>
-                                <a href="{{route('cart')}}">Giỏ hàng</a>
-                            </div>
-                            <ul class="shopping-list">
-                                {{-- {{Helper::getAllProductFromCart()}} --}}
-                                @foreach(Helper::getAllProductFromCart() as $data)
-                                @php
-                                $photo=explode(',',$data->product['photo']);
-                                @endphp
-                                <li>
-                                    <a href="{{route('cart-delete',$data->id)}}" class="remove" title="Remove this item"><i class="fa fa-remove"></i></a>
-                                    <a class="cart-img" href="#"><img src="{{$photo[0]}}" alt="{{$photo[0]}}"></a>
-                                    <h4><a href="{{route('product-detail',$data->product['slug'])}}" target="_blank">{{$data->product['title']}}</a></h4>
-                                    <p class="quantity"> {{$data->quantity}} x - <span class="amount">{{ number_format($data->price, 0, ',', '.') }} ₫</span></p>
 
-                                </li>
-                                @endforeach
-                            </ul>
-                            <div class="bottom">
-                             <div class="total">
-    <span>Tổng</span>
-    <span class="total-amount">
-        {{ number_format(Helper::totalCartPrice(), 0, ',', '.') }} ₫
-    </span>
-</div>
+                <div class="col-lg-2 col-md-3 col-12 text-right">
+                    <a href="{{ route('wishlist') }}" class="single-icon">
+                        <i class="ti-heart"></i>
+                        <span class="total-count">{{ $wishlistCount }}</span>
+                    </a>
 
-                                <a href="{{route('checkout')}}" class="btn animate">Thanh toán</a>
-                            </div>
-                        </div>
-                        @endauth
-                        <!--/ End Shopping Item -->
-                    </div>
+                    <a href="{{ route('cart') }}" class="single-icon">
+                        <i class="ti-bag"></i>
+                        <span class="total-count">{{ $cartCount }}</span>
+                    </a>
                 </div>
+
             </div>
         </div>
     </div>
-    </div>
-    <!-- Header Inner -->
+
+    {{-- MENU --}}
     <div class="header-inner">
         <div class="container">
-            <div class="cat-nav-head">
-                <div class="row">
-                    <div class="col-lg-12 col-12">
-                        <div class="menu-area">
-                            <!-- Main Menu -->
-                            <nav class="navbar navbar-expand-lg">
-                                <div class="navbar-collapse">
-                                    <div class="nav-inner">
-                                        <ul class="nav main-menu menu navbar-nav">
-                                            <li class="{{Request::path()=='home' ? 'active' : ''}}"><a href="{{route('home')}}">Trang chủ</a></li>
-                                            <li class="{{Request::path()=='about-us' ? 'active' : ''}}"><a href="{{route('about-us')}}">Về chúng tôi</a></li>
-                                            <li class="@if(Request::path()=='product-grids'||Request::path()=='product-lists')  active  @endif"><a href="{{route('product-grids')}}">Sản phẩm</a><span class="new">Mới</span></li>
-                                            {{Helper::getHeaderCategory()}}
-                                            <li class="{{Request::path()=='contact' ? 'active' : ''}}"><a href="{{route('contact')}}">Liên hệ</a></li>
-                                            <li><a href="{{ route('try.on') }}">Trải Nghiệm</a></li>
+            <nav class="navbar navbar-expand-lg">
+                <ul class="nav main-menu menu navbar-nav">
+                    <li><a href="{{ route('home') }}">Trang chủ</a></li>
+                    <li><a href="{{ route('about-us') }}">Giới thiệu</a></li>
 
+                    <li>
+                        <a href="{{ route('product-grids') }}">
+                            Sản phẩm <i class="ti-angle-down"></i>
+                        </a>
+                        <ul class="dropdown">
+                            @foreach($categories as $cat)
+                                @if($cat->child_cat->count())
+                                    <li>
+                                        <a href="#">{{ $cat->title }}</a>
+                                        <ul class="dropdown sub-dropdown">
+                                            @foreach($cat->child_cat as $sub)
+                                                <li>
+                                                    <a href="{{ route('product-sub-cat', [$cat->slug, $sub->slug]) }}">
+                                                        {{ $sub->title }}
+                                                    </a>
+                                                </li>
+                                            @endforeach
                                         </ul>
-                                    </div>
-                                </div>
-                            </nav>
-                            <!--/ End Main Menu -->
-                        </div>
-                    </div>
-                </div>
-            </div>
+                                    </li>
+                                @else
+                                    <li>
+                                        <a href="{{ route('product-cat', $cat->slug) }}">
+                                            {{ $cat->title }}
+                                        </a>
+                                    </li>
+                                @endif
+                            @endforeach
+                        </ul>
+                    </li>
+
+                    {{-- TRẢI NGHIỆM --}}
+                    <li>
+                        <a href="{{ route('try.on') }}">Trải nghiệm</a>
+                    </li>
+
+                    <li><a href="{{ route('contact') }}">Liên hệ</a></li>
+                </ul>
+            </nav>
         </div>
     </div>
-    <!--/ End Header Inner -->
+
 </header>
