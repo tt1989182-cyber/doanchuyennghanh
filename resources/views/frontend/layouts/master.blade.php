@@ -1,36 +1,39 @@
 <!DOCTYPE html>
-<html lang="zxx">
+<html lang="vi">
 <head>
-	@include('frontend.layouts.head')	
+    @include('frontend.layouts.head')
+    @stack('styles')
 </head>
+
 <body class="js">
-	
-	<!-- Preloader Butterfly -->
-<!-- Preloader Butterfly -->
-<div class="preloader">
-    <div class="preloader-inner">
-        <div class="butterfly-container">
-            <div class="butterfly">
-                <div class="left-wing"></div>
-                <div class="right-wing"></div>
-                <div class="body"></div>
+
+    <!-- Preloader -->
+    <div class="preloader">
+        <div class="preloader-inner">
+            <div class="butterfly-container">
+                <div class="butterfly">
+                    <div class="left-wing"></div>
+                    <div class="right-wing"></div>
+                    <div class="body"></div>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<!-- End Preloader -->
-<!-- End Preloader -->
-	
-	@include('frontend.layouts.notification')
-	<!-- Header -->
-	@include('frontend.layouts.header')
-	<!--/ End Header -->
-	@yield('main-content')
-	
-	@include('frontend.layouts.footer')
+    <!-- End Preloader -->
 
+    @include('frontend.layouts.notification')
 
-@yield('content')
+    <!-- Header -->
+    @include('frontend.layouts.header')
+    <!-- End Header -->
+
+    <!-- Main content -->
+    @yield('main-content')
+    <!-- End main content -->
+
+    @include('frontend.layouts.footer')
+
+    @stack('scripts')
 
 </body>
 </html>
