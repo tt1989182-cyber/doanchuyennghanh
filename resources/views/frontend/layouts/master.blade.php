@@ -1,54 +1,51 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    @include('frontend.layouts.head')
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>@yield('title','Trang chủ')</title>
+
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
+
+    <!-- GOOGLE FONT -->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700&display=swap" rel="stylesheet">
+
+    <!-- ===== CSS CHỈ GIỮ CÁI CẦN ===== -->
+    <link rel="stylesheet" href="{{ asset('frontend/css/bootstrap.css') }}">
+    <link rel="stylesheet" href="{{ asset('frontend/css/font-awesome.css') }}">
+    <link rel="stylesheet" href="{{ asset('frontend/css/themify-icons.css') }}">
+    <link rel="stylesheet" href="{{ asset('frontend/css/animate.css') }}">
+    <link rel="stylesheet" href="{{ asset('frontend/css/owl-carousel.css') }}">
+    <link rel="stylesheet" href="{{ asset('frontend/css/jquery-ui.css') }}">
+    <link rel="stylesheet" href="{{ asset('frontend/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('frontend/css/responsive.css') }}">
+
     @stack('styles')
 </head>
 
 <body class="js">
 
-    <!-- Preloader -->
-    <div class="preloader">
-        <div class="preloader-inner">
-            <div class="butterfly-container">
-                <div class="butterfly">
-                    <div class="left-wing"></div>
-                    <div class="right-wing"></div>
-                    <div class="body"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- End Preloader -->
-
     @include('frontend.layouts.notification')
-
-    <!-- Header -->
     @include('frontend.layouts.header')
-    <!-- End Header -->
 
-    <!-- Main content -->
     @yield('main-content')
-    <!-- End main content -->
 
     @include('frontend.layouts.footer')
 
-    <!-- ===== JS BẮT BUỘC ===== -->
-    <script src="{{ asset('frontend/js/jquery.min.js') }}"></script>
-    <script src="{{ asset('frontend/js/jquery-migrate-3.0.0.js') }}"></script>
-    <script src="{{ asset('frontend/js/popper.min.js') }}"></script>
-    <script src="{{ asset('frontend/js/bootstrap.min.js') }}"></script>
+    <!-- ===== JS CHUẨN – KHÔNG 404 ===== -->
 
+    <!-- jQuery CDN (ổn định Railway) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="{{ asset('frontend/js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('frontend/js/owl-carousel.js') }}"></script>
-    <script src="{{ asset('frontend/js/slicknav.min.js') }}"></script>
-    <script src="{{ asset('frontend/js/jquery.fancybox.min.js') }}"></script>
-    <script src="{{ asset('frontend/js/magnific-popup.js') }}"></script>
     <script src="{{ asset('frontend/js/jquery-ui.min.js') }}"></script>
-    <script src="{{ asset('frontend/js/nicesellect.js') }}"></script>
-    <script src="{{ asset('frontend/js/flex-slider.js') }}"></script>
-    <script src="{{ asset('frontend/js/waypoints.min.js') }}"></script>
-    <script src="{{ asset('frontend/js/isotope.pkgd.min.js') }}"></script>
-    <script src="{{ asset('frontend/js/wow.min.js') }}"></script>
+
+    <!-- ISOTOPE CDN (SỬA LỖI 404 CỦA BẠN) -->
+    <script src="https://unpkg.com/isotope-layout@3/dist/isotope.pkgd.min.js"></script>
+
+    <!-- ACTIVE -->
     <script src="{{ asset('frontend/js/active.js') }}"></script>
 
     @stack('scripts')
