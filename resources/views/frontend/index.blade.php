@@ -64,7 +64,7 @@
                                                 @if($product->stock<=0)
                                                     <span class="out-of-stock">Giảm giá</span>
                                                 @elseif($product->condition=='new')
-                                                    <span class="new">Mới</span
+                                                    <span class="new">Mới</span>
                                                 @elseif($product->condition=='hot')
                                                     <span class="hot">Hot</span>
                                                 @else
