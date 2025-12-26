@@ -1,13 +1,42 @@
 @php
-    use App\Helpers\Helper;
     use Illuminate\Support\Facades\DB;
+    use Illuminate\Support\Facades\Auth;
+    use App\Models\Category;
+    use App\Models\Wishlist;
+    use App\Models\Cart;
 
+    // Settings
     $settings = DB::table('settings')->get();
-    $categories = Helper::getAllCategory();
-    $wishlistCount = Helper::wishlistCount();
-    $cartCount = Helper::cartCount();
-    $wishlistItems = Helper::getAllProductFromWishlist();
-    $wishlistTotal = Helper::totalWishlistPrice();
+
+    // Categories (parent + child)
+    $categories = Category::with('child_cat')
+        ->whereNull('parent_id')
+        ->get();
+
+    // Default values
+    $wishlistCount = 0;
+    $cartCount = 0;
+    $wishlistItems = collect();
+    $wishlistTotal = 0;
+
+    if (Auth::check()) {
+        $wishlistCount = Wishlist::where('user_id', auth()->id())
+            ->whereNull('cart_id')
+            ->sum('quantity');
+
+        $cartCount = Cart::where('user_id', auth()->id())
+            ->whereNull('order_id')
+            ->sum('quantity');
+
+        $wishlistItems = Wishlist::with('product')
+            ->where('user_id', auth()->id())
+            ->whereNull('cart_id')
+            ->get();
+
+        $wishlistTotal = Wishlist::where('user_id', auth()->id())
+            ->whereNull('cart_id')
+            ->sum('amount');
+    }
 @endphp
 
 <header class="header shop">
@@ -44,7 +73,7 @@
                                     <a href="{{ route('user.account') }}">Hồ sơ của tôi</a>
                                 </li>
 
-                                @if(Auth::user()->role == 'admin')
+                                @if(Auth::user()->role === 'admin')
                                     <li>
                                         <i class="ti-user"></i>
                                         <a href="{{ route('admin') }}" target="_blank">Bảng theo dõi</a>
@@ -110,69 +139,19 @@
                 <!-- Wishlist + Cart -->
                 <div class="col-lg-2 col-md-3 col-12">
                     <div class="right-bar">
-
-                        <!-- Wishlist -->
                         <div class="sinlge-bar shopping">
                             <a href="{{ route('wishlist') }}" class="single-icon">
                                 <i class="ti-heart"></i>
                                 <span class="total-count">{{ $wishlistCount }}</span>
                             </a>
-
-                            @auth
-                                <div class="shopping-item">
-                                    <div class="dropdown-cart-header">
-                                        <span>{{ count($wishlistItems) }} Items</span>
-                                        <a href="{{ route('wishlist') }}">Danh sách yêu thích</a>
-                                    </div>
-
-                                    <ul class="shopping-list">
-                                        @foreach($wishlistItems as $data)
-                                            @php
-                                                $photo = explode(',', $data->product->photo);
-                                            @endphp
-                                            <li>
-                                                <a href="{{ route('wishlist-delete', $data->id) }}" class="remove">
-                                                    <i class="fa fa-remove"></i>
-                                                </a>
-                                                <a class="cart-img" href="#">
-                                                    <img src="{{ $photo[0] }}">
-                                                </a>
-                                                <h4>
-                                                    <a href="{{ route('product-detail', $data->product->slug) }}">
-                                                        {{ $data->product->title }}
-                                                    </a>
-                                                </h4>
-                                                <p class="quantity">
-                                                    {{ $data->quantity }} x -
-                                                    <span class="amount">
-                                                        {{ number_format($data->price, 0, ',', '.') }} ₫
-                                                    </span>
-                                                </p>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-
-                                    <div class="bottom">
-                                        <div class="total">
-                                            <span>Tổng</span>
-                                            <span class="total-amount">
-                                                {{ number_format($wishlistTotal, 0, ',', '.') }} ₫
-                                            </span>
-                                        </div>
-                                        <a href="{{ route('cart') }}" class="btn animate">Thanh toán</a>
-                                    </div>
-                                </div>
-                            @endauth
                         </div>
 
-                        <!-- Cart -->
                         <div class="sinlge-bar shopping">
                             <a href="{{ route('cart') }}" class="single-icon">
                                 <i class="ti-bag"></i>
                                 <span class="total-count">{{ $cartCount }}</span>
                             </a>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -189,7 +168,31 @@
                         <li><a href="{{ route('about-us') }}">Về chúng tôi</a></li>
                         <li><a href="{{ route('product-grids') }}">Sản phẩm</a></li>
 
-                        {!! Helper::getHeaderCategory() !!}
+                        {{-- Category menu --}}
+                        @foreach($categories as $cat)
+                            @if($cat->child_cat->count())
+                                <li>
+                                    <a href="{{ route('product-cat', $cat->slug) }}">
+                                        {{ $cat->title }} <i class="ti-angle-down"></i>
+                                    </a>
+                                    <ul class="dropdown">
+                                        @foreach($cat->child_cat as $sub)
+                                            <li>
+                                                <a href="{{ route('product-sub-cat', [$cat->slug, $sub->slug]) }}">
+                                                    {{ $sub->title }}
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </li>
+                            @else
+                                <li>
+                                    <a href="{{ route('product-cat', $cat->slug) }}">
+                                        {{ $cat->title }}
+                                    </a>
+                                </li>
+                            @endif
+                        @endforeach
 
                         <li><a href="{{ route('contact') }}">Liên hệ</a></li>
                         <li><a href="{{ route('try.on') }}">Trải nghiệm</a></li>
