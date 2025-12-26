@@ -8,8 +8,11 @@ use Illuminate\Support\Facades\URL;
 
 public function boot()
 {
-    URL::forceScheme('https');
+    if (config('app.env') !== 'local') {
+        URL::forceScheme('https');
+    }
 }
+
 
 class AppServiceProvider extends ServiceProvider
 {
