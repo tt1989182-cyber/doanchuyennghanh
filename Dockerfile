@@ -1,39 +1,63 @@
-# Sử dụng PHP 8.2 với Apache
 FROM php:8.2-apache
 
-# Cài đặt extension cần thiết cho Laravel và MySQL
+# ===============================
+# 1. Cài extension cần cho Laravel
+# ===============================
 RUN apt-get update && apt-get install -y \
-    libzip-dev zip unzip \
-    && docker-php-ext-install pdo pdo_mysql exif
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    git \
+    curl \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-# Cài Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+# ===============================
+# 2. Bật Apache rewrite
+# ===============================
+RUN a2enmod rewrite
 
-# Copy source code vào container
-COPY . /var/www/html
+# ===============================
+# 3. Cấu hình Apache trỏ về /public
+# ===============================
+RUN sed -i 's|/var/www/html|/var/www/html/public|g' \
+    /etc/apache2/sites-available/000-default.conf
 
-# Set thư mục làm việc
+# ===============================
+# 4. Set thư mục làm việc
+# ===============================
 WORKDIR /var/www/html
 
-# Cài đặt Laravel dependencies
+# ===============================
+# 5. Copy source code
+# ===============================
+COPY . .
+
+# ===============================
+# 6. Cài Composer
+# ===============================
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# ===============================
+# 7. Cài dependency Laravel
+# ===============================
 RUN composer install --no-dev --optimize-autoloader
 
-# Tạo APP_KEY nếu chưa có
-RUN php artisan key:generate --force
+# ===============================
+# 8. Phân quyền cho Laravel
+# ===============================
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
-# Cache config để tăng tốc
-RUN php artisan config:cache
+# ===============================
+# 9. Cache config (KHÔNG cần .env)
+# ===============================
+RUN php artisan config:clear || true
+RUN php artisan route:clear || true
+RUN php artisan view:clear || true
 
-# Railway cấp biến PORT, Apache cần trỏ vào thư mục public
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
-
-# Update Apache config để trỏ đúng thư mục Laravel
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
-    && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf \
-    && a2enmod rewrite
-
-# Expose cổng Railway cấp
-EXPOSE $PORT
-
-# Khởi chạy Apache
-CMD ["apache2-foreground"]
+# ===============================
+# 10. Expose port
+# ===============================
+EXPOSE 80
