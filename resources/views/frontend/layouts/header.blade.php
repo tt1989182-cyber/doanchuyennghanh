@@ -117,7 +117,8 @@ if(Auth::check()){
     {{-- MENU --}}
     <div class="header-inner">
         <div class="container">
-            <nav class="navbar navbar-expand-lg">
+<nav class="navbar navbar-expand-md">
+
                 <ul class="nav main-menu menu navbar-nav">
                     <li><a href="{{ route('home') }}">Trang chủ</a></li>
                     <li><a href="{{ route('about-us') }}">Giới thiệu</a></li>
