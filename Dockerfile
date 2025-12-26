@@ -5,7 +5,12 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     zip unzip git curl \
-    && docker-php-ext-install pdo_mysql mbstring bcmath gd
+    && docker-php-ext-install \
+        pdo_mysql \
+        mbstring \
+        bcmath \
+        gd \
+        exif
 
 WORKDIR /app
 COPY . .
