@@ -30,7 +30,7 @@ if(Auth::check()){
 
 <header class="header shop">
 
-    {{-- ================= TOP BAR ================= --}}
+    {{-- TOP BAR --}}
     <div class="topbar">
         <div class="container">
             <div class="row">
@@ -77,14 +77,14 @@ if(Auth::check()){
         </div>
     </div>
 
-    {{-- ================= MIDDLE ================= --}}
+    {{-- MIDDLE --}}
     <div class="middle-inner">
         <div class="container">
             <div class="row align-items-center">
 
-                <div class="col-lg-2 col-md-2 col-12 text-center">
+                <div class="col-lg-2 col-md-2 col-12">
                     <a href="{{ route('home') }}">
-                        <img src="{{ asset('backend/img/logo2.jpg') }}" alt="logo" class="img-fluid">
+                        <img src="{{ asset('backend/img/logo2.jpg') }}" alt="logo">
                     </a>
                 </div>
 
@@ -114,76 +114,51 @@ if(Auth::check()){
         </div>
     </div>
 
-    {{-- ================= MENU ================= --}}
+    {{-- MENU --}}
     <div class="header-inner">
         <div class="container">
             <nav class="navbar navbar-expand-lg">
+                <ul class="nav main-menu menu navbar-nav">
+                    <li><a href="{{ route('home') }}">Trang chủ</a></li>
+                    <li><a href="{{ route('about-us') }}">Giới thiệu</a></li>
 
-                {{-- TOGGLE MOBILE --}}
-                <button class="navbar-toggler" type="button" data-toggle="collapse"
-                    data-target="#mainNavbar" aria-controls="mainNavbar"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+                    <li>
+                        <a href="{{ route('product-grids') }}">
+                            Sản phẩm <i class="ti-angle-down"></i>
+                        </a>
+                        <ul class="dropdown">
+                            @foreach($categories as $cat)
+                                @if($cat->child_cat->count())
+                                    <li>
+                                        <a href="#">{{ $cat->title }}</a>
+                                        <ul class="dropdown sub-dropdown">
+                                            @foreach($cat->child_cat as $sub)
+                                                <li>
+                                                    <a href="{{ route('product-sub-cat', [$cat->slug, $sub->slug]) }}">
+                                                        {{ $sub->title }}
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </li>
+                                @else
+                                    <li>
+                                        <a href="{{ route('product-cat', $cat->slug) }}">
+                                            {{ $cat->title }}
+                                        </a>
+                                    </li>
+                                @endif
+                            @endforeach
+                        </ul>
+                    </li>
 
-                {{-- MENU --}}
-                <div class="collapse navbar-collapse" id="mainNavbar">
-                    <ul class="navbar-nav main-menu menu">
+                    {{-- TRẢI NGHIỆM --}}
+                    <li>
+                        <a href="{{ route('try.on') }}">Trải nghiệm</a>
+                    </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('home') }}">Trang chủ</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('about-us') }}">Giới thiệu</a>
-                        </li>
-
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="{{ route('product-grids') }}"
-                                id="productDropdown" data-toggle="dropdown">
-                                Sản phẩm
-                            </a>
-
-                            <ul class="dropdown-menu">
-                                @foreach($categories as $cat)
-                                    @if($cat->child_cat->count())
-                                        <li class="dropdown-submenu">
-                                            <a class="dropdown-item dropdown-toggle" href="#">
-                                                {{ $cat->title }}
-                                            </a>
-                                            <ul class="dropdown-menu">
-                                                @foreach($cat->child_cat as $sub)
-                                                    <li>
-                                                        <a class="dropdown-item"
-                                                            href="{{ route('product-sub-cat', [$cat->slug, $sub->slug]) }}">
-                                                            {{ $sub->title }}
-                                                        </a>
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                        </li>
-                                    @else
-                                        <li>
-                                            <a class="dropdown-item"
-                                                href="{{ route('product-cat', $cat->slug) }}">
-                                                {{ $cat->title }}
-                                            </a>
-                                        </li>
-                                    @endif
-                                @endforeach
-                            </ul>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('try.on') }}">Trải nghiệm</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('contact') }}">Liên hệ</a>
-                        </li>
-
-                    </ul>
-                </div>
+                    <li><a href="{{ route('contact') }}">Liên hệ</a></li>
+                </ul>
             </nav>
         </div>
     </div>
