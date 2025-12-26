@@ -9,14 +9,21 @@
 
 define('LARAVEL_START', microtime(true));
 
+/*
+|--------------------------------------------------------------------------
+| FORCE HTTPS FOR RAILWAY
+|--------------------------------------------------------------------------
+*/
+if (
+    isset($_SERVER['HTTP_X_FORWARDED_PROTO']) &&
+    $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https'
+) {
+    $_SERVER['HTTPS'] = 'on';
+}
 
 require __DIR__.'/../vendor/autoload.php';
 
-
-
 $app = require_once __DIR__.'/../bootstrap/app.php';
-
-
 
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
